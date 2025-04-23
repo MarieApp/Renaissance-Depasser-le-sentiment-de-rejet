@@ -1,0 +1,1299 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Renaissance - Dépasser la blessure de rejet</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #333;
+            background-color: #f7f7f7;
+        }
+        .phase-card {
+            transition: all 0.3s ease;
+        }
+        .phase-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        .tool-card {
+            transition: all 0.3s ease;
+        }
+        .tool-card:hover {
+            transform: scale(1.03);
+        }
+        .progress-bar {
+            height: 10px;
+            border-radius: 5px;
+            background-color: #e0e0e0;
+        }
+        .progress-value {
+            height: 10px;
+            border-radius: 5px;
+            background: linear-gradient(to right, #48bb78, #38a169);
+            width: 0%;
+            transition: width 1s;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .day-circle {
+            width: 36px;
+            height: 36px;
+            line-height: 36px;
+            border-radius: 50%;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .day-circle:hover {
+            transform: scale(1.1);
+        }
+        .day-circle.completed {
+            background-color: #48bb78;
+            color: white;
+        }
+        .day-circle.current {
+            background-color: #4299e1;
+            color: white;
+        }
+        .day-circle.future {
+            background-color: #e2e8f0;
+            color: #718096;
+        }
+        .quote-card {
+            position: relative;
+        }
+        .quote-card::before {
+            content: '"';
+            font-size: 5rem;
+            position: absolute;
+            top: -1.5rem;
+            left: -1rem;
+            color: rgba(72, 187, 120, 0.2);
+            font-family: Georgia, serif;
+        }
+        .journal-entry {
+            resize: none;
+            min-height: 150px;
+        }
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            .page-break {
+                page-break-before: always;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- Header -->
+    <header class="bg-white shadow">
+        <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
+            <div class="flex items-center">
+                <h1 class="text-2xl font-bold text-gray-800">Renaissance</h1>
+                <p class="ml-4 text-sm text-gray-600 hidden sm:block">Dépasser la blessure de rejet</p>
+            </div>
+            <div class="text-sm text-right text-gray-600">
+                <p>Ai-Me | Au Pays de Marie</p>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+        <!-- Introduction -->
+        <section class="mb-12">
+            <div class="bg-white shadow rounded-lg overflow-hidden">
+                <div class="p-6">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4">Bienvenue dans votre parcours de guérison</h2>
+                    <p class="text-gray-600 mb-4">
+                        Cette application vous accompagne pour surmonter la blessure de rejet avec une approche efficace, 
+                        bienveillante et — parce que la vie est déjà assez sérieuse — une touche d'humour.
+                    </p>
+                    <p class="text-gray-600 mb-6">
+                        Au cours des 21 prochains jours, vous traverserez 7 phases thérapeutiques conçues pour transformer
+                        votre relation à cette blessure qui a peut-être façonné votre vie plus que vous ne le pensez.
+                    </p>
+                    <div class="bg-green-50 border-l-4 border-green-400 p-4 mb-6">
+                        <p class="text-green-700">
+                            <span class="font-bold">Citation du jour : </span>
+                            "La blessure de rejet est comme un invité impoli qui reste trop longtemps. 
+                            Il est temps de lui montrer poliment la porte." 
+                        </p>
+                    </div>
+                    <div class="flex justify-center">
+                        <button id="startButton" class="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition duration-300 transform hover:scale-105 focus:outline-none">
+                            Commencer mon parcours
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Questionnaire initial -->
+        <section id="initialQuiz" class="mb-12 hidden">
+            <div class="bg-white shadow rounded-lg overflow-hidden">
+                <div class="p-6">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4">Évaluation initiale</h2>
+                    <p class="text-gray-600 mb-6">
+                        Pour personnaliser votre parcours, prenons quelques minutes pour évaluer 
+                        comment la blessure de rejet se manifeste dans votre vie.
+                    </p>
+                    
+                    <div class="space-y-6">
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h3 class="font-bold text-gray-700 mb-3">Dans quelle mesure êtes-vous d'accord avec les affirmations suivantes?</h3>
+                            
+                            <div class="mb-4">
+                                <p class="mb-2">1. J'ai souvent l'impression de ne pas avoir ma place dans les groupes.</p>
+                                <div class="flex space-x-4">
+                                    <label class="flex items-center"><input type="radio" name="q1" value="1" class="mr-2"> Pas du tout</label>
+                                    <label class="flex items-center"><input type="radio" name="q1" value="2" class="mr-2"> Un peu</label>
+                                    <label class="flex items-center"><input type="radio" name="q1" value="3" class="mr-2"> Modérément</label>
+                                    <label class="flex items-center"><input type="radio" name="q1" value="4" class="mr-2"> Beaucoup</label>
+                                    <label class="flex items-center"><input type="radio" name="q1" value="5" class="mr-2"> Extrêmement</label>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <p class="mb-2">2. J'ai tendance à m'isoler par peur d'être rejeté(e).</p>
+                                <div class="flex space-x-4">
+                                    <label class="flex items-center"><input type="radio" name="q2" value="1" class="mr-2"> Pas du tout</label>
+                                    <label class="flex items-center"><input type="radio" name="q2" value="2" class="mr-2"> Un peu</label>
+                                    <label class="flex items-center"><input type="radio" name="q2" value="3" class="mr-2"> Modérément</label>
+                                    <label class="flex items-center"><input type="radio" name="q2" value="4" class="mr-2"> Beaucoup</label>
+                                    <label class="flex items-center"><input type="radio" name="q2" value="5" class="mr-2"> Extrêmement</label>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <p class="mb-2">3. J'évite de m'exprimer par peur que mes opinions soient rejetées.</p>
+                                <div class="flex space-x-4">
+                                    <label class="flex items-center"><input type="radio" name="q3" value="1" class="mr-2"> Pas du tout</label>
+                                    <label class="flex items-center"><input type="radio" name="q3" value="2" class="mr-2"> Un peu</label>
+                                    <label class="flex items-center"><input type="radio" name="q3" value="3" class="mr-2"> Modérément</label>
+                                    <label class="flex items-center"><input type="radio" name="q3" value="4" class="mr-2"> Beaucoup</label>
+                                    <label class="flex items-center"><input type="radio" name="q3" value="5" class="mr-2"> Extrêmement</label>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <p class="mb-2">4. Je me sens souvent "différent(e)" ou "à part" des autres.</p>
+                                <div class="flex space-x-4">
+                                    <label class="flex items-center"><input type="radio" name="q4" value="1" class="mr-2"> Pas du tout</label>
+                                    <label class="flex items-center"><input type="radio" name="q4" value="2" class="mr-2"> Un peu</label>
+                                    <label class="flex items-center"><input type="radio" name="q4" value="3" class="mr-2"> Modérément</label>
+                                    <label class="flex items-center"><input type="radio" name="q4" value="4" class="mr-2"> Beaucoup</label>
+                                    <label class="flex items-center"><input type="radio" name="q4" value="5" class="mr-2"> Extrêmement</label>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <p class="mb-2">5. Je recherche constamment l'approbation des autres.</p>
+                                <div class="flex space-x-4">
+                                    <label class="flex items-center"><input type="radio" name="q5" value="1" class="mr-2"> Pas du tout</label>
+                                    <label class="flex items-center"><input type="radio" name="q5" value="2" class="mr-2"> Un peu</label>
+                                    <label class="flex items-center"><input type="radio" name="q5" value="3" class="mr-2"> Modérément</label>
+                                    <label class="flex items-center"><input type="radio" name="q5" value="4" class="mr-2"> Beaucoup</label>
+                                    <label class="flex items-center"><input type="radio" name="q5" value="5" class="mr-2"> Extrêmement</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h3 class="font-bold text-gray-700 mb-3">À quels moments ressentez-vous le plus cette blessure?</h3>
+                            <div class="space-y-2">
+                                <label class="flex items-center"><input type="checkbox" class="mr-2"> En contexte professionnel</label>
+                                <label class="flex items-center"><input type="checkbox" class="mr-2"> Dans mes relations amoureuses</label>
+                                <label class="flex items-center"><input type="checkbox" class="mr-2"> En famille</label>
+                                <label class="flex items-center"><input type="checkbox" class="mr-2"> Avec des amis</label>
+                                <label class="flex items-center"><input type="checkbox" class="mr-2"> Avec des inconnus</label>
+                                <label class="flex items-center"><input type="checkbox" class="mr-2"> Sur les réseaux sociaux</label>
+                            </div>
+                        </div>
+                        
+                        <div class="text-center">
+                            <button id="submitQuizButton" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-6 rounded-lg shadow transition duration-300 focus:outline-none">
+                                Analyser mes réponses
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Dashboard -->
+        <section id="dashboard" class="mb-12 hidden">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Left panel: Progress -->
+                <div class="bg-white shadow rounded-lg overflow-hidden">
+                    <div class="p-6">
+                        <h2 class="text-xl font-bold text-gray-800 mb-4">Mon parcours</h2>
+                        
+                        <div class="mb-6">
+                            <p class="text-sm text-gray-600 mb-2">Progression globale</p>
+                            <div class="progress-bar">
+                                <div class="progress-value" id="globalProgress" style="width: 0%;"></div>
+                            </div>
+                            <p class="text-right text-xs text-gray-500 mt-1">
+                                <span id="completedDays">0</span>/21 jours
+                            </p>
+                        </div>
+                        
+                        <h3 class="font-semibold text-gray-700 mb-3">Phases du parcours</h3>
+                        <ul class="space-y-3">
+                            <li class="flex items-center">
+                                <div class="h-8 w-8 rounded-full bg-green-100 text-green-600 flex items-center justify-center mr-3">
+                                    <i class="fas fa-check text-sm"></i>
+                                </div>
+                                <div>
+                                    <p class="font-medium">Phase 1: Reconnaissance</p>
+                                    <div class="progress-bar mt-1" style="width: 100%">
+                                        <div class="progress-value" style="width: 0%"></div>
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="flex items-center opacity-50">
+                                <div class="h-8 w-8 rounded-full bg-gray-100 text-gray-400 flex items-center justify-center mr-3">
+                                    <span class="text-xs">2</span>
+                                </div>
+                                <div>
+                                    <p class="font-medium">Phase 2: Exploration</p>
+                                    <div class="progress-bar mt-1" style="width: 100%">
+                                        <div class="progress-value" style="width: 0%"></div>
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="flex items-center opacity-50">
+                                <div class="h-8 w-8 rounded-full bg-gray-100 text-gray-400 flex items-center justify-center mr-3">
+                                    <span class="text-xs">3</span>
+                                </div>
+                                <p class="font-medium">Phase 3: Expression</p>
+                            </li>
+                            <li class="flex items-center opacity-50">
+                                <div class="h-8 w-8 rounded-full bg-gray-100 text-gray-400 flex items-center justify-center mr-3">
+                                    <span class="text-xs">4</span>
+                                </div>
+                                <p class="font-medium">Phase 4: Recadrage</p>
+                            </li>
+                            <li class="flex items-center opacity-50">
+                                <div class="h-8 w-8 rounded-full bg-gray-100 text-gray-400 flex items-center justify-center mr-3">
+                                    <span class="text-xs">5</span>
+                                </div>
+                                <p class="font-medium">Phase 5: Reconstruction</p>
+                            </li>
+                            <li class="flex items-center opacity-50">
+                                <div class="h-8 w-8 rounded-full bg-gray-100 text-gray-400 flex items-center justify-center mr-3">
+                                    <span class="text-xs">6</span>
+                                </div>
+                                <p class="font-medium">Phase 6: Connexion</p>
+                            </li>
+                            <li class="flex items-center opacity-50">
+                                <div class="h-8 w-8 rounded-full bg-gray-100 text-gray-400 flex items-center justify-center mr-3">
+                                    <span class="text-xs">7</span>
+                                </div>
+                                <p class="font-medium">Phase 7: Intégration</p>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Middle panel: Calendar -->
+                <div class="bg-white shadow rounded-lg overflow-hidden">
+                    <div class="p-6">
+                        <h2 class="text-xl font-bold text-gray-800 mb-4">Calendrier de guérison</h2>
+                        
+                        <div class="grid grid-cols-7 gap-1 mb-2">
+                            <div class="text-center text-xs font-medium text-gray-500">L</div>
+                            <div class="text-center text-xs font-medium text-gray-500">M</div>
+                            <div class="text-center text-xs font-medium text-gray-500">M</div>
+                            <div class="text-center text-xs font-medium text-gray-500">J</div>
+                            <div class="text-center text-xs font-medium text-gray-500">V</div>
+                            <div class="text-center text-xs font-medium text-gray-500">S</div>
+                            <div class="text-center text-xs font-medium text-gray-500">D</div>
+                        </div>
+                        
+                        <div class="grid grid-cols-7 gap-1">
+                            <div class="day-circle current">1</div>
+                            <div class="day-circle future">2</div>
+                            <div class="day-circle future">3</div>
+                            <div class="day-circle future">4</div>
+                            <div class="day-circle future">5</div>
+                            <div class="day-circle future">6</div>
+                            <div class="day-circle future">7</div>
+                            <div class="day-circle future">8</div>
+                            <div class="day-circle future">9</div>
+                            <div class="day-circle future">10</div>
+                            <div class="day-circle future">11</div>
+                            <div class="day-circle future">12</div>
+                            <div class="day-circle future">13</div>
+                            <div class="day-circle future">14</div>
+                            <div class="day-circle future">15</div>
+                            <div class="day-circle future">16</div>
+                            <div class="day-circle future">17</div>
+                            <div class="day-circle future">18</div>
+                            <div class="day-circle future">19</div>
+                            <div class="day-circle future">20</div>
+                            <div class="day-circle future">21</div>
+                        </div>
+                        
+                        <div class="mt-6 border-t pt-4">
+                            <h3 class="font-semibold text-gray-700 mb-3">Aujourd'hui: Jour 1</h3>
+                            <p class="text-gray-600 mb-3">
+                                ✓ Exercice: "Reconnaître les signes du rejet"<br>
+                                ✓ Journal guidé: "Ma première expérience de rejet"
+                            </p>
+                            <button class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg shadow transition duration-300 focus:outline-none w-full">
+                                Commencer ma journée
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right panel: Mood & Quote -->
+                <div class="grid grid-cols-1 gap-6">
+                    <div class="bg-white shadow rounded-lg overflow-hidden">
+                        <div class="p-6">
+                            <h2 class="text-xl font-bold text-gray-800 mb-4">Comment vous sentez-vous?</h2>
+                            <div class="flex justify-between">
+                                <button class="emotion-btn flex flex-col items-center">
+                                    <div class="text-3xl mb-1">😢</div>
+                                    <span class="text-xs">Triste</span>
+                                </button>
+                                <button class="emotion-btn flex flex-col items-center">
+                                    <div class="text-3xl mb-1">😟</div>
+                                    <span class="text-xs">Anxieux</span>
+                                </button>
+                                <button class="emotion-btn flex flex-col items-center">
+                                    <div class="text-3xl mb-1">😐</div>
+                                    <span class="text-xs">Neutre</span>
+                                </button>
+                                <button class="emotion-btn flex flex-col items-center">
+                                    <div class="text-3xl mb-1">🙂</div>
+                                    <span class="text-xs">Bien</span>
+                                </button>
+                                <button class="emotion-btn flex flex-col items-center">
+                                    <div class="text-3xl mb-1">😄</div>
+                                    <span class="text-xs">Joyeux</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white shadow rounded-lg overflow-hidden">
+                        <div class="p-6">
+                            <div class="quote-card">
+                                <h2 class="text-xl font-bold text-gray-800 mb-4">Pensée du jour</h2>
+                                <p class="text-gray-600 italic mb-2">
+                                    "Si vous êtes rejeté, cela signifie simplement que vous n'étiez pas aligné avec la personne ou la situation. Ce n'est pas une réflexion de votre valeur."
+                                </p>
+                                <p class="text-right text-sm text-gray-500">- Louise Bourbeau</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white shadow rounded-lg overflow-hidden">
+                        <div class="p-6">
+                            <h2 class="text-xl font-bold text-gray-800 mb-3">Outils d'urgence</h2>
+                            <button class="w-full bg-red-100 hover:bg-red-200 text-red-700 py-2 px-4 rounded-lg mb-2 text-left transition duration-300">
+                                <i class="fas fa-heartbeat mr-2"></i> Exercice de respiration rapide
+                            </button>
+                            <button class="w-full bg-blue-100 hover:bg-blue-200 text-blue-700 py-2 px-4 rounded-lg mb-2 text-left transition duration-300">
+                                <i class="fas fa-brain mr-2"></i> Recadrage de pensée
+                            </button>
+                            <button class="w-full bg-green-100 hover:bg-green-200 text-green-700 py-2 px-4 rounded-lg text-left transition duration-300">
+                                <i class="fas fa-quote-right mr-2"></i> Affirmations positives
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Daily Content -->
+        <section id="dailyContent" class="mb-12 hidden">
+            <div class="bg-white shadow rounded-lg overflow-hidden">
+                <div class="border-b">
+                    <div class="flex">
+                        <button class="tab-button py-4 px-6 font-medium text-green-500 border-b-2 border-green-500 focus:outline-none">
+                            Exercice du jour
+                        </button>
+                        <button class="tab-button py-4 px-6 font-medium text-gray-500 hover:text-green-500 focus:outline-none">
+                            Journal guidé
+                        </button>
+                        <button class="tab-button py-4 px-6 font-medium text-gray-500 hover:text-green-500 focus:outline-none">
+                            Ressources
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="p-6">
+                    <div class="tab-content active">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-4">Jour 1: Reconnaître les signes du rejet</h2>
+                        
+                        <div class="mb-6">
+                            <h3 class="text-xl font-semibold text-gray-700 mb-3">Objectif</h3>
+                            <p class="text-gray-600 mb-4">
+                                Aujourd'hui, nous allons identifier les signaux spécifiques qui indiquent que votre 
+                                blessure de rejet est activée. Reconnaître ces signes est la première étape cruciale 
+                                de votre guérison.
+                            </p>
+                            <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
+                                <p class="text-yellow-700">
+                                    <span class="font-bold">Note humoristique : </span>
+                                    C'est comme apprendre à repérer les signes avant-coureurs d'une tempête... 
+                                    mais la tempête est dans votre tête et vous êtes à la fois le météorologue et le parapluie.
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-6">
+                            <h3 class="text-xl font-semibold text-gray-700 mb-3">Exercice: Cartographie des signes</h3>
+                            <p class="text-gray-600 mb-4">
+                                Réfléchissez aux trois dernières fois où vous vous êtes senti(e) rejeté(e).
+                                Pour chaque situation, identifiez:
+                            </p>
+                            
+                            <div class="bg-gray-50 p-4 rounded-lg mb-4">
+                                <h4 class="font-bold text-gray-700 mb-2">Situation #1</h4>
+                                <div class="mb-3">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Que s'est-il passé?</label>
+                                    <textarea class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" rows="2"></textarea>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Comment vous êtes-vous senti(e) physiquement?</label>
+                                    <div class="flex flex-wrap gap-2">
+                                        <label class="inline-flex items-center px-3 py-1 bg-white border rounded-full text-sm">
+                                            <input type="checkbox" class="mr-2"> Serrement dans la poitrine
+                                        </label>
+                                        <label class="inline-flex items-center px-3 py-1 bg-white border rounded-full text-sm">
+                                            <input type="checkbox" class="mr-2"> Nœud à l'estomac
+                                        </label>
+                                        <label class="inline-flex items-center px-3 py-1 bg-white border rounded-full text-sm">
+                                            <input type="checkbox" class="mr-2"> Gorge serrée
+                                        </label>
+                                        <label class="inline-flex items-center px-3 py-1 bg-white border rounded-full text-sm">
+                                            <input type="checkbox" class="mr-2"> Rougissement
+                                        </label>
+                                        <label class="inline-flex items-center px-3 py-1 bg-white border rounded-full text-sm">
+                                            <input type="checkbox" class="mr-2"> Fatigue soudaine
+                                        </label>
+                                        <label class="inline-flex items-center px-3 py-1 bg-white border rounded-full text-sm">
+                                            <input type="checkbox" class="mr-2"> Autre...
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Quelles pensées ont traversé votre esprit?</label>
+                                    <textarea class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" rows="2"></textarea>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Comment avez-vous réagi?</label>
+                                    <textarea class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" rows="2"></textarea>
+                                </div>
+                            </div>
+                            
+                            <button class="text-green-500 hover:text-green-600 font-medium focus:outline-none">
+                                + Ajouter une autre situation
+                            </button>
+                        </div>
+                        
+                        <div class="mb-6">
+                            <h3 class="text-xl font-semibold text-gray-700 mb-3">Identification de vos schémas personnels</h3>
+                            <p class="text-gray-600 mb-4">
+                                Maintenant, essayez d'identifier des points communs entre ces situations.
+                            </p>
+                            
+                            <div class="bg-gray-50 p-4 rounded-lg mb-4">
+                                <div class="mb-3">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Mes déclencheurs principaux:</label>
+                                    <textarea class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" rows="2" placeholder="Ex: Quand on m'interrompt, quand je ne suis pas invité(e)..."></textarea>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Mes réactions physiques typiques:</label>
+                                    <textarea class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" rows="2" placeholder="Ex: Gorge serrée, chaleur au visage..."></textarea>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Mes pensées automatiques:</label>
+                                    <textarea class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" rows="2" placeholder="Ex: Je ne suis pas assez bien, ils ne m'aiment pas..."></textarea>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Mes comportements récurrents:</label>
+                                    <textarea class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" rows="2" placeholder="Ex: Je me retire, je deviens hostile..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-6">
+                            <h3 class="text-xl font-semibold text-gray-700 mb-3">Enseignement du jour</h3>
+                            <div class="bg-green-50 p-4 rounded-lg">
+                                <p class="text-gray-700 mb-3">
+                                    Selon Louise Bourbeau, la blessure de rejet se forme généralement dans les 12 premiers mois 
+                                    de la vie, lorsque l'enfant se sent rejeté par le parent du même sexe. Cette blessure crée un 
+                                    masque de "fuyant" qui se manifeste par l'isolement, la peur d'être dérangé, et une tendance 
+                                    à se sentir inexistant ou indésirable.
+                                </p>
+                                <p class="text-gray-700">
+                                    En identifiant vos signes personnels d'activation de cette blessure, vous créez une distance entre 
+                                    vous et ces réactions automatiques. C'est la première étape vers la libération — vous ne pouvez 
+                                    pas guérir ce que vous ne pouvez pas voir.
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex justify-between">
+                            <button class="bg-gray-300 hover:bg-gray-400 text-gray-800 py-2 px-6 rounded-lg shadow transition duration-300 focus:outline-none opacity-50 cursor-not-allowed">
+                                Jour précédent
+                            </button>
+                            <button class="bg-green-500 hover:bg-green-600 text-white py-2 px-6 rounded-lg shadow transition duration-300 focus:outline-none">
+                                Valider et continuer
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="tab-content">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-4">Journal guidé: Ma première expérience de rejet</h2>
+                        
+                        <div class="mb-6">
+                            <p class="text-gray-600 mb-4">
+                                L'écriture est un puissant outil de guérison. Aujourd'hui, nous allons explorer votre 
+                                première expérience de rejet dont vous vous souvenez. Cet exercice peut faire remonter 
+                                des émotions intenses — soyez bienveillant(e) envers vous-même.
+                            </p>
+                            <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
+                                <p class="text-yellow-700">
+                                    <span class="font-bold">Conseil humoristique : </span>
+                                    Gardez des mouchoirs à portée de main. Ou des bonbons. Ou les deux. 
+                                    La thérapie fonctionne mieux avec du sucre dans le système.
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-6">
+                            <h3 class="text-xl font-semibold text-gray-700 mb-3">Questions guidées</h3>
+                            
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                                        Quel est votre plus ancien souvenir de vous être senti(e) rejeté(e)?
+                                    </label>
+                                    <textarea class="journal-entry w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"></textarea>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                                        Quel âge aviez-vous? Comment vous êtes-vous senti(e)?
+                                    </label>
+                                    <textarea class="journal-entry w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"></textarea>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                                        Quelle conclusion avez-vous tirée sur vous-même à ce moment-là?
+                                    </label>
+                                    <textarea class="journal-entry w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"></textarea>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                                        Si vous pouviez parler à l'enfant que vous étiez alors, que lui diriez-vous?
+                                    </label>
+                                    <textarea class="journal-entry w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-6">
+                            <h3 class="text-xl font-semibold text-gray-700 mb-3">Réflexion</h3>
+                            <div class="bg-green-50 p-4 rounded-lg">
+                                <p class="text-gray-700 mb-3">
+                                    Selon Carl Jung, nos blessures d'enfance font partie de notre "ombre" — ces aspects 
+                                    de nous-mêmes que nous avons appris à cacher ou rejeter. Paradoxalement, c'est en 
+                                    reconnaissant et en acceptant ces parties blessées que nous pouvons nous libérer 
+                                    de leur emprise.
+                                </p>
+                                <p class="text-gray-700">
+                                    En explorant vos premières expériences de rejet, vous commencez à comprendre comment 
+                                    ces événements ont façonné votre vision de vous-même et du monde. Cette conscience 
+                                    est le terreau fertile dans lequel une nouvelle perception de soi peut germer.
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex justify-between">
+                            <button class="bg-gray-300 hover:bg-gray-400 text-gray-800 py-2 px-6 rounded-lg shadow transition duration-300 focus:outline-none opacity-50 cursor-not-allowed">
+                                Jour précédent
+                            </button>
+                            <button class="bg-green-500 hover:bg-green-600 text-white py-2 px-6 rounded-lg shadow transition duration-300 focus:outline-none">
+                                Sauvegarder mon journal
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="tab-content">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-4">Ressources supplémentaires</h2>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                            <div class="bg-white border rounded-lg overflow-hidden shadow-sm">
+                                <div class="p-4">
+                                    <h3 class="font-semibold text-lg text-gray-800 mb-2">
+                                        <i class="fas fa-book text-green-500 mr-2"></i>
+                                        Lecture recommandée
+                                    </h3>
+                                    <p class="text-gray-600 mb-3">
+                                        "Les 5 blessures qui empêchent d'être soi-même" - Louise Bourbeau
+                                    </p>
+                                    <p class="text-sm text-gray-500">
+                                        Ce livre explore en profondeur la blessure de rejet et propose 
+                                        des techniques concrètes pour la guérir.
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-white border rounded-lg overflow-hidden shadow-sm">
+                                <div class="p-4">
+                                    <h3 class="font-semibold text-lg text-gray-800 mb-2">
+                                        <i class="fas fa-quote-left text-green-500 mr-2"></i>
+                                        Citation inspirante
+                                    </h3>
+                                    <p class="text-gray-600 italic mb-3">
+                                        "Jusqu'à ce que vous rendiez conscient ce qui est inconscient, 
+                                        il dirigera votre vie et vous l'appellerez le destin."
+                                    </p>
+                                    <p class="text-sm text-gray-500">- Carl Jung</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-6">
+                            <h3 class="text-xl font-semibold text-gray-700 mb-3">Exercice supplémentaire</h3>
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <h4 class="font-bold text-gray-700 mb-2">Technique du "Double témoin"</h4>
+                                <p class="text-gray-600 mb-3">
+                                    Cette technique puissante, inspirée par les travaux de Jung sur la dissociation 
+                                    thérapeutique, vous aide à observer vos réactions émotionnelles avec compassion.
+                                </p>
+                                <ol class="list-decimal list-inside space-y-2 text-gray-600 mb-4">
+                                    <li>Lorsque vous vous sentez rejeté, imaginez-vous faire un pas en arrière</li>
+                                    <li>Observez vos pensées et sensations physiques comme si vous étiez un scientifique curieux</li>
+                                    <li>Puis, imaginez un témoin bienveillant qui observe à la fois vous et votre expérience</li>
+                                    <li>Demandez à ce témoin ce qu'il voit avec compassion</li>
+                                </ol>
+                                <p class="text-gray-600">
+                                    Cette technique crée une distance saine avec la réaction émotionnelle immédiate
+                                    et cultive une perspective plus large et compatissante.
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-green-50 border-l-4 border-green-400 p-4 mb-6">
+                            <p class="text-green-700">
+                                <span class="font-bold">Note d'humour : </span>
+                                Se dissocier de ses émotions difficiles est comme se regarder faire une scène embarrassante 
+                                dans un restaurant et penser "Hmmm, intéressant!" au lieu de vouloir se cacher sous la table. 
+                                C'est un super-pouvoir émotionnel... sans cape ni collant.
+                            </p>
+                        </div>
+                        
+                        <div class="flex justify-between">
+                            <button class="bg-gray-300 hover:bg-gray-400 text-gray-800 py-2 px-6 rounded-lg shadow transition duration-300 focus:outline-none opacity-50 cursor-not-allowed">
+                                Jour précédent
+                            </button>
+                            <button class="bg-green-500 hover:bg-green-600 text-white py-2 px-6 rounded-lg shadow transition duration-300 focus:outline-none">
+                                Retour au tableau de bord
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Emergency Tools -->
+        <section id="emergencyTools" class="mb-12 hidden">
+            <div class="bg-white shadow rounded-lg overflow-hidden">
+                <div class="p-6">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4">Outils d'urgence</h2>
+                    <p class="text-gray-600 mb-6">
+                        Ces outils sont conçus pour vous aider dans les moments où la blessure de rejet 
+                        est fortement activée. Utilisez-les comme une "trousse de premiers secours émotionnels".
+                    </p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="tool-card bg-white border rounded-lg overflow-hidden shadow-sm">
+                            <div class="p-5">
+                                <div class="flex items-center mb-4">
+                                    <div class="h-10 w-10 rounded-full bg-red-100 text-red-500 flex items-center justify-center mr-3">
+                                        <i class="fas fa-lungs text-xl"></i>
+                                    </div>
+                                    <h3 class="font-semibold text-lg text-gray-800">Respiration 4-7-8</h3>
+                                </div>
+                                <p class="text-gray-600 mb-4">
+                                    Cette technique de respiration active votre système parasympathique, 
+                                    calmant rapidement la réponse de stress.
+                                </p>
+                                <ol class="list-decimal list-inside space-y-1 text-gray-600 mb-4">
+                                    <li>Inspirez par le nez pendant 4 secondes</li>
+                                    <li>Retenez votre souffle pendant 7 secondes</li>
+                                    <li>Expirez lentement par la bouche pendant 8 secondes</li>
+                                    <li>Répétez 3-4 fois</li>
+                                </ol>
+                                <div class="bg-yellow-50 p-3 rounded">
+                                    <p class="text-yellow-700 text-sm">
+                                        <span class="font-bold">Astuce humoristique : </span>
+                                        Si vous vous sentez étourdi, vous comptez probablement trop lentement. 
+                                        À moins que vous ne soyez en train de retenir votre respiration en attendant 
+                                        un texto qui n'arrive pas... dans ce cas, respirez quand même!
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="tool-card bg-white border rounded-lg overflow-hidden shadow-sm">
+                            <div class="p-5">
+                                <div class="flex items-center mb-4">
+                                    <div class="h-10 w-10 rounded-full bg-blue-100 text-blue-500 flex items-center justify-center mr-3">
+                                        <i class="fas fa-brain text-xl"></i>
+                                    </div>
+                                    <h3 class="font-semibold text-lg text-gray-800">Recadrage ABCD</h3>
+                                </div>
+                                <p class="text-gray-600 mb-4">
+                                    Basée sur la thérapie cognitive, cette technique vous aide à défier 
+                                    les pensées négatives automatiques.
+                                </p>
+                                <ul class="space-y-2 text-gray-600 mb-4">
+                                    <li><span class="font-bold">A</span>ctivation: Identifiez ce qui a déclenché votre sentiment de rejet</li>
+                                    <li><span class="font-bold">B</span>eliefs: Notez vos pensées automatiques ("Je ne suis pas assez bien")</li>
+                                    <li><span class="font-bold">C</span>hallenge: Contestez ces pensées avec compassion</li>
+                                    <li><span class="font-bold">D</span>iscovery: Trouvez une perspective alternative plus équilibrée</li>
+                                </ul>
+                                <div class="bg-yellow-50 p-3 rounded">
+                                    <p class="text-yellow-700 text-sm">
+                                        <span class="font-bold">Conseil humoristique : </span>
+                                        Imaginez vos pensées négatives portant un costume ridicule. 
+                                        Il est difficile de prendre au sérieux une pensée qui dit "tu es nul" 
+                                        si vous l'imaginez en tutu rose.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="tool-card bg-white border rounded-lg overflow-hidden shadow-sm">
+                            <div class="p-5">
+                                <div class="flex items-center mb-4">
+                                    <div class="h-10 w-10 rounded-full bg-green-100 text-green-500 flex items-center justify-center mr-3">
+                                        <i class="fas fa-heart text-xl"></i>
+                                    </div>
+                                    <h3 class="font-semibold text-lg text-gray-800">Auto-compassion express</h3>
+                                </div>
+                                <p class="text-gray-600 mb-4">
+                                    Cette pratique rapide vous aide à répondre à votre douleur avec gentillesse 
+                                    plutôt qu'avec autocritique.
+                                </p>
+                                <ol class="list-decimal list-inside space-y-2 text-gray-600 mb-4">
+                                    <li>Posez une main sur votre cœur</li>
+                                    <li>Reconnaissez votre souffrance: "Ça fait mal de se sentir rejeté"</li>
+                                    <li>Rappelez-vous que vous n'êtes pas seul: "Des millions de personnes ressentent cela"</li>
+                                    <li>Offrez-vous de la gentillesse: "Puissé-je m'offrir la compassion dont j'ai besoin"</li>
+                                </ol>
+                                <div class="bg-yellow-50 p-3 rounded">
+                                    <p class="text-yellow-700 text-sm">
+                                        <span class="font-bold">Note d'humour : </span>
+                                        S'offrir de la compassion peut sembler bizarre au début, comme se parler à soi-même 
+                                        en public. La bonne nouvelle? Les écouteurs Bluetooth ont normalisé cette pratique!
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-8">
+                        <h3 class="text-xl font-semibold text-gray-700 mb-4">Affirmations d'urgence</h3>
+                        <p class="text-gray-600 mb-4">
+                            Ces affirmations sont formulées avec une touche d'humour pour briser le cycle de pensées négatives. 
+                            Choisissez celle qui résonne avec vous dans le moment.
+                        </p>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="bg-green-50 p-4 rounded-lg">
+                                <p class="text-green-700 text-lg">
+                                    "Je suis comme un smartphone premium: pas fait pour plaire à tout le monde, 
+                                    mais parfait pour ceux qui apprécient mes fonctionnalités spéciales."
+                                </p>
+                            </div>
+                            <div class="bg-green-50 p-4 rounded-lg">
+                                <p class="text-green-700 text-lg">
+                                    "Le rejet est juste un GPS recalculant mon itinéraire vers des personnes 
+                                    qui m'apprécient vraiment."
+                                </p>
+                            </div>
+                            <div class="bg-green-50 p-4 rounded-lg">
+                                <p class="text-green-700 text-lg">
+                                    "Ma valeur n'est pas un sondage d'opinion — elle ne diminue pas avec chaque 'non'."
+                                </p>
+                            </div>
+                            <div class="bg-green-50 p-4 rounded-lg">
+                                <p class="text-green-700 text-lg">
+                                    "Si je plaisais à tout le monde, je serais une pizza. Et même la pizza a des détracteurs!"
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 7 Phases Overview -->
+        <section id="phasesOverview" class="mb-12">
+            <div class="bg-white shadow rounded-lg overflow-hidden">
+                <div class="p-6">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4">Les 7 Phases du Parcours</h2>
+                    <p class="text-gray-600 mb-6">
+                        Ce programme thérapeutique est structuré en 7 phases progressives, chacune construisant sur les
+                        fondations des précédentes. Vous passerez environ 3 jours sur chaque phase.
+                    </p>
+                    
+                    <div class="space-y-6">
+                        <div class="phase-card bg-white border rounded-lg overflow-hidden shadow-sm">
+                            <div class="p-5">
+                                <div class="flex items-center mb-3">
+                                    <div class="h-10 w-10 rounded-full bg-green-100 text-green-600 flex items-center justify-center mr-3">
+                                        <span class="font-bold">1</span>
+                                    </div>
+                                    <h3 class="font-semibold text-xl text-gray-800">Reconnaissance</h3>
+                                </div>
+                                <p class="text-gray-600 mb-3">
+                                    Dans cette phase initiale, vous apprendrez à identifier les signes d'activation 
+                                    de votre blessure de rejet et à comprendre comment elle se manifeste dans votre vie.
+                                </p>
+                                <div class="bg-yellow-50 p-3 rounded">
+                                    <p class="text-yellow-700 text-sm">
+                                        <span class="font-bold">Approche humoristique : </span>
+                                        C'est comme devenir détective de vos propres comportements, 
+                                        mais sans l'imperméable ni la loupe comiquement grande.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="phase-card bg-white border rounded-lg overflow-hidden shadow-sm">
+                            <div class="p-5">
+                                <div class="flex items-center mb-3">
+                                    <div class="h-10 w-10 rounded-full bg-green-100 text-green-600 flex items-center justify-center mr-3">
+                                        <span class="font-bold">2</span>
+                                    </div>
+                                    <h3 class="font-semibold text-xl text-gray-800">Exploration</h3>
+                                </div>
+                                <p class="text-gray-600 mb-3">
+                                    Vous explorerez les origines de cette blessure dans votre histoire personnelle, 
+                                    remontant à l'enfance pour comprendre comment elle s'est formée.
+                                </p>
+                                <div class="bg-yellow-50 p-3 rounded">
+                                    <p class="text-yellow-700 text-sm">
+                                        <span class="font-bold">Remarque légère : </span>
+                                        Comme un voyage archéologique dans votre passé, 
+                                        mais sans le sable qui se glisse partout et avec plus de révélations "aha!".
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="phase-card bg-white border rounded-lg overflow-hidden shadow-sm">
+                            <div class="p-5">
+                                <div class="flex items-center mb-3">
+                                    <div class="h-10 w-10 rounded-full bg-green-100 text-green-600 flex items-center justify-center mr-3">
+                                        <span class="font-bold">3</span>
+                                    </div>
+                                    <h3 class="font-semibold text-xl text-gray-800">Expression</h3>
+                                </div>
+                                <p class="text-gray-600 mb-3">
+                                    Cette phase cruciale vous permettra d'exprimer les émotions refoulées liées au rejet 
+                                    dans un environnement sécurisé, libérant l'énergie émotionnelle bloquée.
+                                </p>
+                                <div class="bg-yellow-50 p-3 rounded">
+                                    <p class="text-yellow-700 text-sm">
+                                        <span class="font-bold">Note d'humour : </span>
+                                        C'est comme déboucher un évier émotionnel — un peu désordonné, 
+                                        potentiellement bruyant, mais tellement satisfaisant quand tout s'écoule enfin.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="phase-card bg-white border rounded-lg overflow-hidden shadow-sm">
+                            <div class="p-5">
+                                <div class="flex items-center mb-3">
+                                    <div class="h-10 w-10 rounded-full bg-green-100 text-green-600 flex items-center justify-center mr-3">
+                                        <span class="font-bold">4</span>
+                                    </div>
+                                    <h3 class="font-semibold text-xl text-gray-800">Recadrage</h3>
+                                </div>
+                                <p class="text-gray-600 mb-3">
+                                    Vous apprendrez à transformer les croyances limitantes nées du rejet, 
+                                    en développant une nouvelle perspective sur vous-même et vos expériences.
+                                </p>
+                                <div class="bg-yellow-50 p-3 rounded">
+                                    <p class="text-yellow-700 text-sm">
+                                        <span class="font-bold">Vision humoristique : </span>
+                                        Imaginez que vos pensées portent des lunettes aux verres déformants depuis des années. 
+                                        Nous allons simplement ajuster la prescription pour voir la réalité plus clairement.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="phase-card bg-white border rounded-lg overflow-hidden shadow-sm">
+                            <div class="p-5">
+                                <div class="flex items-center mb-3">
+                                    <div class="h-10 w-10 rounded-full bg-green-100 text-green-600 flex items-center justify-center mr-3">
+                                        <span class="font-bold">5</span>
+                                    </div>
+                                    <h3 class="font-semibold text-xl text-gray-800">Reconstruction</h3>
+                                </div>
+                                <p class="text-gray-600 mb-3">
+                                    Cette phase se concentre sur le développement d'une estime de soi solide, 
+                                    indépendante de la validation externe, créant une fondation interne stable.
+                                </p>
+                                <div class="bg-yellow-50 p-3 rounded">
+                                    <p class="text-yellow-700 text-sm">
+                                        <span class="font-bold">Analogie amusante : </span>
+                                        C'est comme devenir votre propre architecte intérieur, 
+                                        construisant une maison d'estime de soi si solide que même 
+                                        le grand méchant loup du rejet ne pourra pas la souffler.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="phase-card bg-white border rounded-lg overflow-hidden shadow-sm">
+                            <div class="p-5">
+                                <div class="flex items-center mb-3">
+                                    <div class="h-10 w-10 rounded-full bg-green-100 text-green-600 flex items-center justify-center mr-3">
+                                        <span class="font-bold">6</span>
+                                    </div>
+                                    <h3 class="font-semibold text-xl text-gray-800">Connexion</h3>
+                                </div>
+                                <p class="text-gray-600 mb-3">
+                                    Vous explorerez comment créer des relations authentiques et nourrissantes, 
+                                    en apprenant à vous ouvrir progressivement sans craindre le rejet.
+                                </p>
+                                <div class="bg-yellow-50 p-3 rounded">
+                                    <p class="text-yellow-700 text-sm">
+                                        <span class="font-bold">Perspective ludique : </span>
+                                        Considérez cela comme apprendre à danser socialement après avoir passé 
+                                        des années à regarder depuis le mur — maladroit au début, 
+                                        mais rapidement libérateur et amusant.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="phase-card bg-white border rounded-lg overflow-hidden shadow-sm">
+                            <div class="p-5">
+                                <div class="flex items-center mb-3">
+                                    <div class="h-10 w-10 rounded-full bg-green-100 text-green-600 flex items-center justify-center mr-3">
+                                        <span class="font-bold">7</span>
+                                    </div>
+                                    <h3 class="font-semibold text-xl text-gray-800">Intégration</h3>
+                                </div>
+                                <p class="text-gray-600 mb-3">
+                                    Dans cette phase finale, vous consoliderez vos apprentissages, 
+                                    intégrant votre nouvelle relation avec la blessure de rejet dans votre identité 
+                                    et vision du monde.
+                                </p>
+                                <div class="bg-yellow-50 p-3 rounded">
+                                    <p class="text-yellow-700 text-sm">
+                                        <span class="font-bold">Image humoristique : </span>
+                                        C'est comme transformer votre ancienne blessure en un badge d'honneur — 
+                                        "J'ai survécu au rejet et tout ce que j'ai obtenu, c'est cette confiance 
+                                        inébranlable et cette authenticité rayonnante."
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Journal -->
+        <section id="journal" class="mb-12 hidden">
+            <div class="bg-white shadow rounded-lg overflow-hidden">
+                <div class="p-6">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4">Mon journal de guérison</h2>
+                    <p class="text-gray-600 mb-6">
+                        Cet espace vous permet de documenter votre parcours et vos réflexions personnelles.
+                        Tous vos écrits sont sauvegardés localement sur votre appareil.
+                    </p>
+                    
+                    <div class="mb-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-xl font-semibold text-gray-700">Nouvelle entrée</h3>
+                            <div class="text-sm text-gray-500">
+                                <span id="currentDate">24 mai 2023</span>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Titre</label>
+                            <input type="text" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Donnez un titre à votre entrée...">
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Comment je me sens aujourd'hui</label>
+                            <div class="flex space-x-4 mb-2">
+                                <label class="flex items-center"><input type="radio" name="mood" value="1" class="mr-2"> Très mal</label>
+                                <label class="flex items-center"><input type="radio" name="mood" value="2" class="mr-2"> Mal</label>
+                                <label class="flex items-center"><input type="radio" name="mood" value="3" class="mr-2"> Neutre</label>
+                                <label class="flex items-center"><input type="radio" name="mood" value="4" class="mr-2"> Bien</label>
+                                <label class="flex items-center"><input type="radio" name="mood" value="5" class="mr-2"> Très bien</label>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Mon entrée</label>
+                            <textarea class="journal-entry w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" rows="8" placeholder="Écrivez librement vos pensées, sentiments et réflexions..."></textarea>
+                        </div>
+                        
+                        <div class="flex items-center mb-4">
+                            <label class="flex items-center text-sm text-gray-700">
+                                <input type="checkbox" class="mr-2"> Marquer cette entrée comme importante
+                            </label>
+                        </div>
+                        
+                        <div class="flex justify-end">
+                            <button class="bg-green-500 hover:bg-green-600 text-white py-2 px-6 rounded-lg shadow transition duration-300 focus:outline-none">
+                                Sauvegarder l'entrée
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="border-t pt-6">
+                        <h3 class="text-xl font-semibold text-gray-700 mb-4">Entrées précédentes</h3>
+                        
+                        <div class="space-y-4">
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <div class="flex justify-between items-center mb-2">
+                                    <h4 class="font-bold text-gray-700">Premier jour de thérapie</h4>
+                                    <span class="text-sm text-gray-500">23 mai 2023</span>
+                                </div>
+                                <p class="text-gray-600 mb-3 line-clamp-2">
+                                    Aujourd'hui j'ai commencé ce programme et je me sens à la fois anxieux et plein d'espoir. 
+                                    Reconnaître ma blessure de rejet était plus émotionnel que je ne le pensais...
+                                </p>
+                                <div class="flex justify-end">
+                                    <button class="text-green-500 hover:text-green-600 font-medium text-sm focus:outline-none">
+                                        Lire la suite
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <div class="flex justify-between items-center mb-2">
+                                    <h4 class="font-bold text-gray-700">Réflexion sur mon enfance</h4>
+                                    <span class="text-sm text-gray-500">22 mai 2023</span>
+                                </div>
+                                <p class="text-gray-600 mb-3 line-clamp-2">
+                                    J'ai repensé aujourd'hui à plusieurs situations de mon enfance où je me suis senti rejeté. 
+                                    Je réalise maintenant que beaucoup de mes comportements actuels...
+                                </p>
+                                <div class="flex justify-end">
+                                    <button class="text-green-500 hover:text-green-600 font-medium text-sm focus:outline-none">
+                                        Lire la suite
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Legal Notices -->
+        <section id="legalNotices" class="mb-12">
+            <div class="bg-white shadow rounded-lg overflow-hidden">
+                <div class="p-6">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4">Mentions légales et références</h2>
+                    
+                    <div class="mb-6">
+                        <h3 class="text-xl font-semibold text-gray-700 mb-3">Clause de non-responsabilité</h3>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <p class="text-gray-600 mb-3">
+                                Cette application est fournie à titre informatif et éducatif uniquement. Elle ne constitue pas 
+                                un avis médical ou psychologique professionnel. Le contenu proposé ne remplace en aucun cas 
+                                une consultation avec un professionnel de la santé mentale qualifié.
+                            </p>
+                            <p class="text-gray-600 mb-3">
+                                Si vous souffrez de symptômes graves liés à l'anxiété, la dépression, ou d'autres troubles 
+                                psychologiques, nous vous encourageons vivement à consulter un professionnel de santé approprié.
+                            </p>
+                            <p class="text-gray-600">
+                                Ai-Me | Au Pays de Marie ne pourra être tenu responsable de l'utilisation que vous ferez 
+                                des informations contenues dans cette application ou des conséquences directes ou indirectes 
+                                qui pourraient en découler.
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <h3 class="text-xl font-semibold text-gray-700 mb-3">Références théoriques</h3>
+                        <div class="space-y-4">
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <h4 class="font-bold text-gray-700 mb-2">Louise Bourbeau</h4>
+                                <p class="text-gray-600">
+                                    Le concept des cinq blessures émotionnelles, dont la blessure de rejet, est développé 
+                                    dans son ouvrage "Les 5 blessures qui empêchent d'être soi-même" (1993). Bourbeau 
+                                    y explique comment ces blessures se forment dans l'enfance et comment elles façonnent 
+                                    notre personnalité et nos comportements à l'âge adulte.
+                                </p>
+                            </div>
+                            
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <h4 class="font-bold text-gray-700 mb-2">Carl Gustav Jung</h4>
+                                <p class="text-gray-600">
+                                    Les concepts d'ombre, de persona et d'individuation utilisés dans cette application 
+                                    sont inspirés des travaux de Jung. Sa théorie sur la nécessité d'intégrer les aspects 
+                                    refoulés de notre personnalité pour atteindre la plénitude psychologique constitue 
+                                    une base importante de notre approche.
+                                </p>
+                            </div>
+                            
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <h4 class="font-bold text-gray-700 mb-2">John Bowlby</h4>
+                                <p class="text-gray-600">
+                                    La théorie de l'attachement de Bowlby nous aide à comprendre comment les premières 
+                                    relations d'attachement influencent notre capacité à former des liens sécurisants 
+                                    tout au long de notre vie, et comment les expériences de rejet peuvent perturber 
+                                    ces schémas d'attachement.
+                                </p>
+                            </div>
+                            
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <h4 class="font-bold text-gray-700 mb-2">Brené Brown</h4>
+                                <p class="text-gray-600">
+                                    Les recherches de Brown sur la vulnérabilité, la honte et l'appartenance ont 
+                                    significativement influencé notre compréhension du rejet et les stratégies proposées 
+                                    pour développer la résilience face à ces expériences.
+                                </p>
+                            </div>
+                            
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <h4 class="font-bold text-gray-700 mb-2">Albert Ellis et Aaron Beck</h4>
+                                <p class="text-gray-600">
+                                    Les techniques de restructuration cognitive présentées s'inspirent de la thérapie 
+                                    rationnelle-émotive comportementale d'Ellis et de la thérapie cognitive de Beck, 
+                                    qui démontrent comment nos pensées influencent nos émotions et comportements.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-700 mb-3">Propriété intellectuelle</h3>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <p class="text-gray-600 mb-3">
+                                Tous les contenus de cette application, incluant textes, images, exercices et structure, 
+                                sont la propriété exclusive de Ai-Me | Au Pays de Marie, sauf mention contraire.
+                            </p>
+                            <p class="text-gray-600">
+                                Cette application est destinée à un usage strictement personnel. Toute reproduction, 
+                                distribution ou utilisation commerciale sans autorisation écrite préalable est strictement interdite.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white shadow">
+        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-4 md:mb-0">
+                    <p class="text-sm text-gray-600">© 2023 Ai-Me | Au Pays de Marie. Tous droits réservés.</p>
+                </div>
+                <div class="flex space-x-4">
+                    <a href="#" class="text-sm text-gray-600 hover:text-green-500">Conditions d'utilisation</a>
+                    <a href="#" class="text-sm text-gray-600 hover:text-green-500">Politique de confidentialité</a>
+                    <a href="#legalNotices" class="text-sm text-gray-600 hover:text-green-500">Mentions légales</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Set current date
+        const today = new Date();
+        const options = { year: 'numeric', month: 'long', day: 'numeric' };
+        document.getElementById('currentDate').textContent = today.toLocaleDateString('fr-FR', options);
+        
+        // Tab switching
+        const tabButtons = document.querySelectorAll('.tab-button');
+        const tabContents = document.querySelectorAll('.tab-content');
+        
+        tabButtons.forEach((button, index) => {
+            button.addEventListener('click', () => {
+                // Reset all buttons and contents
+                tabButtons.forEach(btn => {
+                    btn.classList.remove('text-green-500', 'border-b-2', 'border-green-500');
+                    btn.classList.add('text-gray-500');
+                });
+                
+                tabContents.forEach(content => {
+                    content.classList.remove('active');
+                });
+                
+                // Activate current button and content
+                button.classList.add('text-green-500', 'border-b-2', 'border-green-500');
+                button.classList.remove('text-gray-500');
+                tabContents[index].classList.add('active');
+            });
+        });
+        
+        // Start button functionality
+        document.getElementById('startButton').addEventListener('click', function() {
+            document.getElementById('initialQuiz').classList.remove('hidden');
+            document.querySelector('html, body').scrollTop = document.getElementById('initialQuiz').offsetTop - 20;
+        });
+        
+        // Quiz submission
+        document.getElementById('submitQuizButton').addEventListener('click', function() {
+            document.getElementById('dashboard').classList.remove('hidden');
+            document.querySelector('html, body').scrollTop = document.getElementById('dashboard').offsetTop - 20;
+            
+            // Simulate progress
+            setTimeout(() => {
+                document.getElementById('globalProgress').style.width = '5%';
+                document.getElementById('completedDays').textContent = '1';
+            }, 500);
+        });
+        
+        // Setup day circles interaction
+        const dayCircles = document.querySelectorAll('.day-circle');
+        dayCircles.forEach(circle => {
+            circle.addEventListener('click', function() {
+                if (this.classList.contains('completed') || this.classList.contains('current')) {
+                    document.getElementById('dailyContent').classList.remove('hidden');
+                    document.querySelector('html, body').scrollTop = document.getElementById('dailyContent').offsetTop - 20;
+                }
+            });
+        });
+        
+        // Emergency tools button
+        document.querySelectorAll('[class*="bg-red-100"], [class*="bg-blue-100"], [class*="bg-green-100"]').forEach(button => {
+            button.addEventListener('click', function() {
+                document.getElementById('emergencyTools').classList.remove('hidden');
+                document.querySelector('html, body').scrollTop = document.getElementById('emergencyTools').offsetTop - 20;
+            });
+        });
+    </script>
+</body>
+</html>
